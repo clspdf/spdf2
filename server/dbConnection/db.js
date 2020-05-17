@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const MY_CONFIG = require('../../my_config');
 const {userSchema, todoSchema} = require('./schema');
 
-user_db = mongoose.createConnection(MY_CONFIG.MONGO_SESSION_STRING, {useNewUrlParser:true, useUnifiedTopology: true}, (err) => {
+user_db = mongoose.createConnection(MY_CONFIG.MONGO_SESSION_STRING, {useNewUrlParser:true, useUnifiedTopology: true, useFindAndModify: false}, (err) => {
     if (err) {
         console.log(err);
     } else {
@@ -10,7 +10,7 @@ user_db = mongoose.createConnection(MY_CONFIG.MONGO_SESSION_STRING, {useNewUrlPa
     }
 });
 
-data_db = mongoose.createConnection(MY_CONFIG.MONGO_DATA_STRING, {useNewUrlParser:true, useUnifiedTopology: true}, (err) => {
+data_db = mongoose.createConnection(MY_CONFIG.MONGO_DATA_STRING, {useNewUrlParser:true, useUnifiedTopology: true, useFindAndModify: false}, (err) => {
     if (err) {
         console.log(err);
     } else {

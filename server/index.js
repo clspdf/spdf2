@@ -6,6 +6,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const {user_db} = require('./dbConnection/db');
 const login_api = require('./api/login');
+const todo_api = require('./api/todos');
 
 const app = express();
 
@@ -33,8 +34,8 @@ app.use(session({
 
 // backend api/routes
 
-app.use('/user', login_api);
-
+app.use('/api/user', login_api);
+app.use('/api/todos', todo_api);
 // Starting port
 
 app.listen(MY_CONFIG.PORT, () => console.log(`Server up and running on Port ${MY_CONFIG.PORT}`));

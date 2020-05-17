@@ -4,6 +4,10 @@ const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 
+// Middleware to handle already logged in re-direct
+
+
+
 // Register
 
 router.post('/register', async (req, res) => {
@@ -26,7 +30,7 @@ router.post('/register', async (req, res) => {
                 try {
                     await user.save();
                     req.session.userID = user._id;
-                    res.send(`New user ${name} saved!`)
+                    res.status(200).send(user._id);
                 } catch (error) {
                     res.send(error);
                 }
@@ -55,18 +59,42 @@ router.post('/login', async (req, res) => {
                 if (matched) {
                     // console.log('trying to set session...');
                     req.session.userID = _user._id;
-                    res.send('You are now logged in!');
+                    res.send(_user._id);
                 } else {
-                    res.send('Username or password invalid!');
+                    res.send(null);
                 }
             }
         } catch (error) {
-            res.send(`Something went wrong! ${error}`);
+            res.send(null);
         }
     } else {
-        res.send('Please enter username and password!');
+        res.send(null);
     }
 });
 
+// helper api for checking session availability
+
+router.get('/checkuser', (req, res) => {
+    
+    // res.send(req.session.userID);
+    
+    
+    
+    if (req.session.userID) {
+        res.send(req.session.userID);
+    } else {
+        res.send(null);
+    }
+});
+
+router.post('/logout', async (req, res) => {
+    if (req.session.userID) {
+        await req.session.destroy();
+        res.clearCookie('sid');
+        res.send('session & cookie cleared!')
+    } else {
+        res.send(null);
+    }
+})
 
 module.exports = router;
