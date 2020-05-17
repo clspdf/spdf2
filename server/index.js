@@ -7,6 +7,7 @@ const MongoStore = require('connect-mongo')(session);
 const {user_db} = require('./dbConnection/db');
 const login_api = require('./api/login');
 const todo_api = require('./api/todos');
+const path = require('path');
 
 const app = express();
 
@@ -37,5 +38,12 @@ app.use(session({
 app.use('/api/user', login_api);
 app.use('/api/todos', todo_api);
 // Starting port
+
+if (MY_CONFIG.PRODUCTION_MODE) {
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+}
+
+
 
 app.listen(MY_CONFIG.PORT, () => console.log(`Server up and running on Port ${MY_CONFIG.PORT}`));
