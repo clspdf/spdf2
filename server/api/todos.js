@@ -1,5 +1,5 @@
 const express = require('express');
-const {todo_model} = require('../dbConnection/db');
+const {todo_model, project_model} = require('../dbConnection/db');
 
 
 const router = express.Router();
@@ -80,5 +80,12 @@ router.delete('/:id', async (req, res) => {
         res.send(null);
     }
 });
+
+
+
+
+
+
+
 
 module.exports = router;
