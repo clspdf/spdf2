@@ -59,27 +59,27 @@ const projectTodoSchema = new mongoose.Schema({
 
 });
 
-// const projectRemarkSchema = new mongoose.Schema({
+const projectRemarkSchema = new mongoose.Schema({
     
-//     content: {},
-//     belong_id: {type: mongoose.Schema.Types.ObjectId, ref: 'project'},
-//     created: {type: Date},
-//     finalized_flag: {type: Boolean}
+    content: {},
+    belong_id: {type: mongoose.Schema.Types.ObjectId, ref: 'project'},
+    created: {type: Date},
+    finalized_flag: {type: Boolean}
 
-// });
+});
 
-// const todoRemarkSchema = new mongoose.Schema({
+const todoRemarkSchema = new mongoose.Schema({
     
-//     content: {},
-//     belong_id: {type: mongoose.Schema.Types.ObjectId, ref: 'projectTodo'},
-//     created: {type: Date},
-//     finalized_flag: {type: Boolean}
+    content: {},
+    belong_id: {type: mongoose.Schema.Types.ObjectId, ref: 'projectTodo'},
+    created: {type: Date},
+    finalized_flag: {type: Boolean}
 
-// });
+});
 
 module.exports.userSchema = userSchema;
 module.exports.todoSchema = todoSchema;
 module.exports.projectSchema = projectSchema;
 module.exports.projectTodoSchema = projectTodoSchema;
-// module.exports.projectRemarkSchema = projectRemarkSchema;
-// module.exports.todoRemarkSchema = todoRemarkSchema;
+module.exports.projectRemarkSchema = projectRemarkSchema;
+module.exports.todoRemarkSchema = todoRemarkSchema;

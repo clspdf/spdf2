@@ -8,6 +8,7 @@ const {user_db} = require('./dbConnection/db');
 const login_api = require('./api/login');
 const project_api = require('./api/projects');
 const projectTodos_api = require('./api/projectTodos');
+const projectRemarks_api = require('./api/projectRemarks');
 const todo_api = require('./api/todos');
 const path = require('path');
 
@@ -41,6 +42,7 @@ app.use('/api/user', login_api);
 app.use('/api/todos', todo_api);
 app.use('/api/projects', project_api);
 app.use('/api/projectTodos', projectTodos_api);
+app.use('/api/projectRemarks', projectRemarks_api);
 // Starting port
 
 if (MY_CONFIG.PRODUCTION_MODE) {
