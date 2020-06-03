@@ -1,7 +1,7 @@
 import axios from 'axios';
 import path from 'path';
 
-const user_url = 'api/user';
+const user_url = '/api/user';
 
 class UserService {
     

@@ -5,6 +5,9 @@ import Login from '../views/Login';
 import store from '../store/index.js';
 import UserService from '../components/UserService';
 import Todos from '../views/Todos.vue';
+import Projects from '../views/Projects.vue';
+import ProjectDetail from '../views/ProjectDetail.vue';
+import ProjectTodos from '../views/ProjectTodos.vue';
 
 Vue.use(VueRouter)
 
@@ -16,10 +19,28 @@ Vue.use(VueRouter)
     component: Login
   },
   
+
+
   {
     path: '/todos',
     name: 'Todos',
     component: Todos
+  },
+  {
+    path: '/projecttodos',
+    name: 'ProjectTodos',
+    component: ProjectTodos
+  },
+  {
+    path: '/projects',
+    name: 'Projects',
+    component: Projects
+  },
+  {
+    path: '/projectdetail/projectid/:projectid/projecttitle/:projecttitle',
+    name: 'ProjectDetail',
+    
+    component: ProjectDetail
   }
 ]
 

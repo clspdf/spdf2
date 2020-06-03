@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const todo_url = 'api/todos';
+const todo_url = '/api/todos';
 
 
 class TodoService {

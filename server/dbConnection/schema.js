@@ -51,7 +51,7 @@ const projectTodoSchema = new mongoose.Schema({
     project_id: {type: mongoose.Schema.Types.ObjectId, ref: 'project'},
     title: {},
     content: {},
-    
+    order: {},
     created: {type: Date},
     due: {type: Date},
     status: {},

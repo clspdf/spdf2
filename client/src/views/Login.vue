@@ -6,8 +6,12 @@
                 <v-form>
                     <v-text-field v-model="user.name" label="Name"></v-text-field>
                     <v-text-field v-model="user.password" label="Password"></v-text-field>
-                    <v-btn color="success" @click="login">Login In</v-btn>
-                    <v-btn router-link to='/Todos'>Todos</v-btn>
+                    <v-row justify="space-around"> 
+                        <v-btn color="success" @click="login">Login In</v-btn>
+                    </v-row>
+                    
+                    
+                    
                 </v-form>
             </v-row>
         </v-container>

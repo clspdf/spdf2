@@ -1,19 +1,21 @@
-const mongoose = require('mongoose');
+const express = require('express');
 
-const mongo_string = 'mongodb://spdf_dev:cl.spdf@144.202.126.128:27017/spdf?authSource=test';
 
-const data_db = mongoose.createConnection(mongo_string, {useNewUrlParser:true, useUnifiedTopology: true});
+const router = express.Router();
 
-const schema = new mongoose.Schema({name: 'string', size: 'string'});
-const tank = data_db.model('Tank', schema);
-
-const small = new tank({name: 'small tank', size: 'small'});
-
-small.save((err) => {
-    console.log(err);
+router.post('/p1/:param1', (req, res) => {
+    p1 = req.params.param1;
+    
+    res.send(`Received p1 as ${p1}`);
 });
 
+router.post('/p2/:param2', (req, res) => {
+    p2 = req.params.param2;
+    
+    res.send(`Received p2 as ${p2}`);
+});
 
+module.exports = router;
 
 
 
