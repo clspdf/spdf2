@@ -13,11 +13,11 @@
                 <v-text-field :value="formattedWeekDate" label="Pick a Week by Date" prepend-inner-icon="mdi-calendar" readonly v-on="on" class="ma-3">
                 </v-text-field>
             </template>
-            <v-date-picker v-model="selectedWeekDate" no-title scrollable @change="selectedDateChange">
+            <v-date-picker v-model="selectedWeekDate" no-title scrollable @change="selectedDateChange" first-day-of-week="1">
             </v-date-picker>
         </v-menu>
         
-        <v-switch v-model="weekSwitch" label="Open Week?"></v-switch>
+        <v-switch v-model="weekSwitch" label="Show Week?"></v-switch>
         <!-- <h1>{{currentWeekSchedule}}</h1> -->
         
         <v-card v-if="weekSwitch">
@@ -199,7 +199,7 @@
                         <v-overflow-btn :items="weekWorkTag" v-model="selectedWorkTag" v-if="editingDay" @change="fetchWorkProjectTodos" class="ml-3"></v-overflow-btn>
                     </v-col>
                     <v-col cols="7" md="5">
-                        <v-overflow-btn :items="dailyWorkTodoArray" v-model="selectedWorkTodo" v-if="editingDay"></v-overflow-btn>
+                        <v-overflow-btn :items="dailyWorkTodoArray" v-model="selectedWorkTodo" v-if="editingDay" @change="triggerNewWorkTodo"></v-overflow-btn>
                     </v-col>
                     <v-col cols="1" md="2" align-center>
                         <v-icon color="success" medium class="pa-6" @click="addDailyWork(date)">mdi-plus-circle-outline</v-icon>
@@ -238,7 +238,7 @@
                         <v-overflow-btn :items="weekGrowthTag" v-model="selectedGrowthTag" v-if="editingDay" @change="fetchGrowthProjectTodos" class="ml-3"></v-overflow-btn>
                     </v-col>
                     <v-col cols="7" md="5">
-                        <v-overflow-btn :items="dailyGrowthTodoArray" v-model="selectedGrowthTodo" v-if="editingDay"></v-overflow-btn>
+                        <v-overflow-btn :items="dailyGrowthTodoArray" v-model="selectedGrowthTodo" v-if="editingDay" @change="triggerNewGrowthTodo"></v-overflow-btn>
                     </v-col>
                     <v-col cols="1" md="2" align-center>
                         <v-icon color="success" medium class="pa-6" @click="addDailyGrowth(date)">mdi-plus-circle-outline</v-icon>
@@ -273,7 +273,7 @@
                         <v-overflow-btn :items="weekLifeTag" v-model="selectedLifeTag" v-if="editingDay" @change="fetchLifeProjectTodos" class="ml-3"></v-overflow-btn>
                     </v-col>
                     <v-col cols="7" md="5">
-                        <v-overflow-btn :items="dailyLifeTodoArray" v-model="selectedLifeTodo" v-if="editingDay"></v-overflow-btn>
+                        <v-overflow-btn :items="dailyLifeTodoArray" v-model="selectedLifeTodo" v-if="editingDay" @change="triggerNewLifeTodo"></v-overflow-btn>
                     </v-col>
                     <v-col cols="1" md="2" align-center>
                         <v-icon color="success" medium class="pa-6" @click="addDailyLife(date)">mdi-plus-circle-outline</v-icon>
@@ -283,6 +283,36 @@
                 <v-textarea v-model="dailySchedule[date].dailyComment" row-height="12" auto-grow outlined clearable placeholder="enter daily comment" :disabled="!((date === editingDate) && (editingDay))" class="mx-3"></v-textarea>
             </v-card>
         </v-card>
+
+        <!-- dialog for Todo/project? -->
+
+        <v-dialog max-width="500px" v-model="todoDialog">
+            
+            <v-card>
+                <v-card-title>{{formTitle}}</v-card-title>
+                <v-card-text>
+                    <v-text-field readonly :placeholder="selectedProjectForNewTodo.title"></v-text-field>
+                    <v-text-field v-model="editedTodo.title" label="Title"></v-text-field>
+                    
+                    <v-textarea auto-grow v-model="editedTodo.content" label="Content"></v-textarea>
+                    <v-text-field v-model="editedTodo.status" label="Status"></v-text-field>
+                    <!-- <v-text-field v-model="editedTodo.due" label="Due By"></v-text-field> -->
+                    <v-menu v-model="due_menu" :close-on-content-click="false" transition="scale-transition" min-width="290px">
+                        <template v-slot:activator="{ on }">
+                            <v-text-field v-model="editedTodo.due" label="Pick a due date" prepend-inner-icon="mdi-calendar" readonly v-on="on">
+                            </v-text-field>
+                        </template>
+                        <v-date-picker v-model="editedTodo.due" no-title scrollable @input="due_menu = false">
+                        </v-date-picker>
+                    </v-menu>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="secondary" @click="closeTodo">Cancel</v-btn>
+                    <v-btn color="success" @click="save" :loading="loading">OK</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
 
     </v-container>
 </template>
@@ -302,6 +332,26 @@ export default {
     },
     data() {
         return {
+            due_menu: false,
+            editedTodo: {
+                project_id: '',
+                title: '',
+                content: '',
+
+                due: '',
+                status: '',
+                
+            },
+            blankTodo: {
+                project_id: '',
+                title: '',
+                content: '',
+
+                due: '',
+                status: '',            
+            },
+            selectedProjectForNewTodo:'',
+            todoDialog: false,
             weekSwitch: true,
             weekComment: '',
             selectedLifeTodo: '',
@@ -344,7 +394,7 @@ export default {
             },
             weekExist: false,
             weekEditing: false,
-            editedIndex: 0, // 0 for edit exisitng week; 1 for creating new week; 2 for edit/create daily 
+            editedIndex: 0, // 0 for edit exisitng week; 1 for creating new week; 2 for edit/create daily; 3/4/5 for create work/growth/life Todo 
             overlay: false,
             loading: false,
             selectedWeekDate: null,
@@ -373,7 +423,45 @@ export default {
         // 
     },
     methods: {
-        
+        closeTodo() {
+            this.selectedWorkTodo = '';
+            this.selectedGrowthTodo = '';
+            this.selectedLifeTodo = '';
+            this.dailyWorkTodoArray = [];
+            this.dailyGrowthTodoArray = [];
+            this.dailyLifeTodoArray = [];
+            this.selectedWorkTag = '';
+            this.selectedGrowthTag = '';
+            this.selectedLifeTag = '';
+            this.editedIndex = 0;
+            this.selectedProjectForNewTodo = '';
+            this.editedTodo = Object.assign({}, this.blankTodo);
+            this.todoDialog = false;
+        },
+        triggerNewWorkTodo() {
+            if (this.selectedWorkTodo === '_0') {
+                this.editedIndex = 3;
+                this.todoDialog = true;
+                const workIndex = this.selectedWorkTag.slice(1 - this.selectedWorkTag.length);
+                this.selectedProjectForNewTodo = this.currentWeekSchedule.weekWorkSchedule[workIndex];
+            }
+        },
+        triggerNewGrowthTodo() {
+            if (this.selectedGrowthTodo === '_0') {
+                this.editedIndex = 4;
+                this.todoDialog = true;
+                const growthIndex = this.selectedGrowthTag.slice(1 - this.selectedGrowthTag.length);
+                this.selectedProjectForNewTodo = this.currentWeekSchedule.weekGrowthSchedule[growthIndex];
+            }
+        },
+        triggerNewLifeTodo() {
+            if (this.selectedLifeTodo === '_0') {
+                this.editedIndex = 5;
+                this.todoDialog = true;
+                const lifeIndex = this.selectedLifeTag.slice(1 - this.selectedLifeTag.length);
+                this.selectedProjectForNewTodo = this.currentWeekSchedule.weekLifeSchedule[lifeIndex];
+            }
+        },
         delDailyWork(date, workTag, index3){
             this.dailySchedule[date].dailyWorkArray[workTag].splice(index3, 1);
             this.$forceUpdate();
@@ -434,6 +522,7 @@ export default {
                 this.dailyWorkTodoArray = (await ProjectService.getProjectTodos(projectID)).data.map((todo) => {
                     return {text: todo.title, value: todo};
                     });
+                this.dailyWorkTodoArray.push({text: 'new Todo...', value: '_0'});
                 this.overlay = false;
             }
         },
@@ -445,6 +534,7 @@ export default {
                 this.dailyGrowthTodoArray = (await ProjectService.getProjectTodos(projectID)).data.map((todo) => {
                     return {text: todo.title, value: todo};
                     });
+                this.dailyGrowthTodoArray.push({text: 'new Todo...', value: '_0'});
                 this.overlay = false;
             }
         },
@@ -457,6 +547,7 @@ export default {
                 this.dailyLifeTodoArray = (await ProjectService.getProjectTodos(projectID)).data.map((todo) => {
                     return {text: todo.title, value: todo};
                     });
+                this.dailyLifeTodoArray.push({text: 'new Todo...', value: '_0'});
                 this.overlay = false;
             }
             
@@ -578,10 +669,29 @@ export default {
                 await this.fetchWeekSchedule(this.selectedDateISOString);
                 this.loading = false;
                 this.close();
+            } else if ([3, 4, 5].includes(this.editedIndex)) {
+                this.editedTodo.project_id = this.selectedProjectForNewTodo._id;
+                console.log(this.editedTodo);
+                await ProjectService.createProjectTodo(this.editedTodo);
+                console.log('new projectTodo created!')
+                
+                this.closeTodo();
+                this.loading = false;
             }
         }
     },
     computed:{
+        formTitle() {
+            if (this.editedIndex === 3) {
+                return 'New Work TODO';
+            } else if (this.editedIndex === 4 ) {
+                return 'New Growth TODO';
+            } else if (this.editedIndex === 5) {
+                return 'New Life TODO';
+            } else {
+                return '';
+            }
+        },
         datesToShowSorted() {
             if (this.datesToShow) {
                 return this.datesToShow.sort();

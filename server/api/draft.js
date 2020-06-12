@@ -157,3 +157,4 @@ console.log(`Week start: ${startOfWeek(startOfDay(now), {weekStartsOn: 1})}`);
 console.log(`In ISO String: ${startOfWeek(now, {weekStartsOn: 1}).toISOString()}`);
 // console.log(`current date in utc expression: ${zonedTimeToUtc(now, tz)}`);
 // console.log(`current date in utc ISO String: ${zonedTimeToUtc(now, tz).toISOString()}`);
+
