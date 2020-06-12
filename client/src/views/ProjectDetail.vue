@@ -222,7 +222,9 @@ export default {
                 due: '',
                 status: '',            
             },
-            loading: false
+            loading: false,
+            oldIndex: '',
+            newIndex: '',
         }
     },
     async created() {
@@ -234,17 +236,20 @@ export default {
     },
     methods: {
         async onEnd(evt) {
-            
-            console.log(`item ${evt.oldIndex} moved to item ${evt.newIndex}`);
-            if (evt.oldIndex === evt.newIndex) {
+            this.oldIndex = evt.oldIndex;
+            this.newIndex = evt.newIndex;
+            console.log(`item ${this.oldIndex} moved to item ${this.newIndex}`);
+            if (this.oldIndex === this.newIndex) {
                 console.log('No order changed!')
             } else {
                 this.overlay = true;
                 console.log(`order changed, now trying to udpate db`);
                 // console.log(this.projectTodos[evt.newIndex]._id);
-                await ProjectService.reorderProjectTodos(this.projectID, evt.oldIndex, evt.newIndex, this.projectTodos[evt.newIndex]._id);
+                await ProjectService.reorderProjectTodos(this.projectID, this.oldIndex, this.newIndex, this.projectTodos[this.newIndex]._id);
                 this.projectTodos = (await ProjectService.getProjectTodos(this.projectID)).data;
                 console.log('re-order done!');
+                this.oldIndex = '';
+                this.newIndex = '';
                 this.overlay = false;
             }
 
@@ -281,6 +286,7 @@ export default {
         },
         close() {
             this.dialog = false;
+            this.loading = false;
             this.$nextTick(() => {
                 this.editedTodo = Object.assign({}, this.blankTodo);
                 this.editedIndex = -1;

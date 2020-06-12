@@ -10,7 +10,8 @@ const project_api = require('./api/projects');
 const projectTodos_api = require('./api/projectTodos');
 const projectRemarks_api = require('./api/projectRemarks');
 const todo_api = require('./api/todos');
-const draft = require('./api/draft');
+const week_api = require('./api/weeks');
+
 const path = require('path');
 
 const app = express();
@@ -44,7 +45,8 @@ app.use('/api/todos', todo_api);
 app.use('/api/projects', project_api);
 app.use('/api/projectTodos', projectTodos_api);
 app.use('/api/projectRemarks', projectRemarks_api);
-app.use('/test', draft);
+app.use('/api/weeks', week_api);
+
 
 
 // Starting port

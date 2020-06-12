@@ -45,7 +45,7 @@ const projectSchema = new mongoose.Schema({
     status: {},
     // projectTodo: {type: mongoose.Schema.Types.ObjectId, ref:'projectTodo'}
     // remark: [{type: mongoose.Schema.Types.ObjectId, ref: 'remark'}]
-});
+}, {minimize: false});
 
 const projectTodoSchema = new mongoose.Schema({
     project_id: {type: mongoose.Schema.Types.ObjectId, ref: 'project'},
@@ -57,7 +57,7 @@ const projectTodoSchema = new mongoose.Schema({
     status: {},
     nextStep: {type:Boolean}
 
-});
+}, {minimize: false});
 
 const projectRemarkSchema = new mongoose.Schema({
     
@@ -77,9 +77,30 @@ const todoRemarkSchema = new mongoose.Schema({
 
 });
 
+
+const weekSchema = new mongoose.Schema({
+    weekDates: [Date],
+    weekWorkSchedule: {},
+    weekGrowthSchedule: {},
+    weekLifeSchedule: {},
+    dailySchedule: {},
+    weekComment: '',
+    
+}, {minimize: false});
+
+const daySchema = new mongoose.Schema({
+    date: {type: Date},
+    workTodos:[],
+    growthTodos:[],
+    lifeTodos:[]
+});
+
+
 module.exports.userSchema = userSchema;
 module.exports.todoSchema = todoSchema;
 module.exports.projectSchema = projectSchema;
 module.exports.projectTodoSchema = projectTodoSchema;
 module.exports.projectRemarkSchema = projectRemarkSchema;
 module.exports.todoRemarkSchema = todoRemarkSchema;
+module.exports.weekSchema = weekSchema;
+module.exports.daySchema = daySchema;

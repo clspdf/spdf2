@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const MY_CONFIG = require('../../my_config');
-const {userSchema, todoSchema, projectSchema, projectTodoSchema, projectRemarkSchema, todoRemarkSchema} = require('./schema');
+const {userSchema, todoSchema, projectSchema, projectTodoSchema, projectRemarkSchema, todoRemarkSchema, weekSchema, daySchema} = require('./schema');
 
 user_db = mongoose.createConnection(MY_CONFIG.MONGO_SESSION_STRING, {useNewUrlParser:true, useUnifiedTopology: true, useFindAndModify: false}, (err) => {
     if (err) {
@@ -24,6 +24,9 @@ project_model = data_db.model('project', projectSchema);
 projectTodo_model = data_db.model('projectTodo', projectTodoSchema);
 projectRemark_model = data_db.model('projectRemark', projectRemarkSchema);
 todoRemark_model = data_db.model('todoRemark', todoRemarkSchema);
+week_model = data_db.model('week', weekSchema);
+day_model = data_db.model('day', daySchema);
+
 
 module.exports.user_db = user_db;
 module.exports.data_db = data_db;
@@ -34,3 +37,5 @@ module.exports.project_model = project_model;
 module.exports.projectRemark_model = projectRemark_model;
 module.exports.projectTodo_model = projectTodo_model;
 module.exports.todoRemark_model = todoRemark_model;
+module.exports.week_model = week_model;
+module.exports.day_model = day_model;

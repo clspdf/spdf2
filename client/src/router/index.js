@@ -8,6 +8,7 @@ import Todos from '../views/Todos.vue';
 import Projects from '../views/Projects.vue';
 import ProjectDetail from '../views/ProjectDetail.vue';
 import ProjectTodos from '../views/ProjectTodos.vue';
+import Daily from '../views/Daily.vue';
 
 Vue.use(VueRouter)
 
@@ -41,6 +42,11 @@ Vue.use(VueRouter)
     name: 'ProjectDetail',
     
     component: ProjectDetail
+  },
+  {
+    path: '/daily',
+    name: 'Daily',
+    component: Daily
   }
 ]
 

@@ -40,6 +40,7 @@ export default {
                 {name: 'Projects', path: '/projects'},
                 {name: 'Todos', path: '/todos'},
                 {name: 'ProjectTodos', path: '/projectTodos'},
+                {name: 'Daily', path: '/daily'}
             ]
         }
     },
