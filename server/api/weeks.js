@@ -16,12 +16,15 @@ router.post('/', async (req, res) => { // date (ISO string) to be in parsed date
         const weekGrowthSchedule = req.body.weekGrowthSchedule;
         const weekLifeSchedule = req.body.weekLifeSchedule;
         const weekComment = req.body.weekComment;
-        
+        const dailySchedule = req.body.dailySchedule;
         
         try {
-            const existedDoc = await week_model.findOne({weekDates: parseISO(req.body.selectedDateISOString)});
+            const shiftedDateStart = startOfDay(addHours(parseISO(req.body.selectedDateISOString), hourShift));
+            const serverDateStart = addHours(shiftedDateStart, -hourShift);
+            const existedDoc = await week_model.findOne({weekDates: serverDateStart});
             // res.send(existedDoc);
             if (existedDoc) {  // update exisitng doc
+                console.log(`found existing doc`);
                 existedDoc.weekWorkSchedule = weekWorkSchedule;
                 existedDoc.weekGrowthSchedule = weekGrowthSchedule;
                 existedDoc.weekLifeSchedule = weekLifeSchedule;
@@ -31,7 +34,7 @@ router.post('/', async (req, res) => { // date (ISO string) to be in parsed date
                 await existedDoc.save();
                 res.send(existedDoc);
             } else { // create new doc
-
+                console.log('To create new doc');
                 // as fns function works based on server's local time, need to 
                 // 1) shift server time by (server offset - client offset) to same as client time; (client datetime in UCT -> UCT in server datetime -> server datetime =shift> server datetime same as client datetime)
                 // 2) perform fns function on shifted time, including formatting
@@ -54,16 +57,9 @@ router.post('/', async (req, res) => { // date (ISO string) to be in parsed date
                 // 3) shift back to derive correct server date (so that Mongo can cast corret UCT time)
                 
                 const serverDates = shiftedWeekDates.map(shiftedWeekDate => addHours(shiftedWeekDate, -hourShift));
-
+                console.log(serverDates);
                 // other value for weekSchedule
-
-                const weekWorkSchedule = req.body.weekWorkSchedule;
-                const weekGrowthSchedule = req.body.weekGrowthSchedule;
-                const weekLifeSchedule = req.body.weekLifeSchedule;
-                const weekComment = req.body.weekComment;
                 
-        
-
                 const createdDoc = new week_model({
                     weekDates: serverDates, // server dates would be cast to UTC time by Mongo
                     weekWorkSchedule,
