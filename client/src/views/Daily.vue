@@ -132,7 +132,7 @@
                 </v-row>
             </v-card>
             <v-card-title>Weekly Comment</v-card-title>
-            <v-textarea v-model="weekComment" row-height="12" auto-grow outlined clearable placeholder="enter weekly comment" :disabled="!weekEditing" class="mx-3"></v-textarea>
+            <v-textarea v-model="weekComment" row-height="12" auto-grow outlined clearable placeholder="enter weekly comment" :readonly="!weekEditing" class="mx-3"></v-textarea>
 
         </v-card>
 
@@ -195,7 +195,7 @@
                 <!-- for editing -->
 
                 <v-row no-gutters v-if="(date === editingDate) && (editingDay)" >
-                    <v-col cols="1" md="1">
+                    <v-col cols="2" md="1">
                         <v-overflow-btn :items="weekWorkTag" v-model="selectedWorkTag" v-if="editingDay" @change="fetchWorkProjectTodos" class="ml-3"></v-overflow-btn>
                     </v-col>
                     <v-col cols="7" md="5">
@@ -234,7 +234,7 @@
                 <!-- for editing -->
 
                 <v-row no-gutters v-if="(date === editingDate) && (editingDay)" >
-                    <v-col cols="1" md="1">
+                    <v-col cols="2" md="1">
                         <v-overflow-btn :items="weekGrowthTag" v-model="selectedGrowthTag" v-if="editingDay" @change="fetchGrowthProjectTodos" class="ml-3"></v-overflow-btn>
                     </v-col>
                     <v-col cols="7" md="5">
@@ -269,7 +269,7 @@
                 <!-- for editing -->
 
                 <v-row no-gutters v-if="(date === editingDate) && (editingDay)" >
-                    <v-col cols="1" md="1">
+                    <v-col cols="2" md="1">
                         <v-overflow-btn :items="weekLifeTag" v-model="selectedLifeTag" v-if="editingDay" @change="fetchLifeProjectTodos" class="ml-3"></v-overflow-btn>
                     </v-col>
                     <v-col cols="7" md="5">
@@ -280,7 +280,7 @@
                     </v-col>
                 </v-row>
                 <v-card-title>Daily Comment</v-card-title>
-                <v-textarea v-model="dailySchedule[date].dailyComment" row-height="12" auto-grow outlined clearable placeholder="enter daily comment" :disabled="!((date === editingDate) && (editingDay))" class="mx-3"></v-textarea>
+                <v-textarea v-model="dailySchedule[date].dailyComment" row-height="12" auto-grow outlined clearable placeholder="enter daily comment" :readonly="!((date === editingDate) && (editingDay))" class="mx-3"></v-textarea>
             </v-card>
         </v-card>
 
