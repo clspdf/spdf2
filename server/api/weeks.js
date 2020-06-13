@@ -1,61 +1,78 @@
 const express = require('express');
 const {week_model} = require('../dbConnection/db');
-const {startOfWeek, endOfWeek, eachDayOfInterval, parseISO, startOfDay, getISODay, format} = require('date-fns');
+const {startOfWeek, endOfWeek, eachDayOfInterval, parseISO, startOfDay, getISODay, format, addHours} = require('date-fns');
 const {utcToZonedTime} = require('date-fns-tz');
 
 const router = express.Router();
 
-const defaultTimeZone = 'Asia/Shanghai';
+const CNHourOffset = -8; //Dc 
+const ServerHourOffset = new Date().getTimezoneOffset() / 60; // Ds
+const hourShift = ServerHourOffset - CNHourOffset;
 
 router.post('/', async (req, res) => { // date (ISO string) to be in parsed date object
     if(req.session.userID){
-        console.log(`received date in ISOstring: ${parseISO(req.body.selectedDateISOString)}`);
-
-        const zonedSelectedDate = startOfDay(utcToZonedTime(req.body.selectedDateISOString, defaultTimeZone));
-        console.log(`zoned date: ${zonedSelectedDate}`);
-        const startDate = startOfWeek(zonedSelectedDate, {weekStartsOn: 1});
-        const endDate = endOfWeek(zonedSelectedDate, {weekStartsOn: 1});
-        console.log(`start date: ${startDate}, end date: ${endDate}`);
-        const weekDates = eachDayOfInterval({start: startDate, end: endDate});
-        console.log(`week dates: ${weekDates}`);
+        console.log(`received date in ISOstring: ${req.body.selectedDateISOString}`);
         const weekWorkSchedule = req.body.weekWorkSchedule;
         const weekGrowthSchedule = req.body.weekGrowthSchedule;
         const weekLifeSchedule = req.body.weekLifeSchedule;
         const weekComment = req.body.weekComment;
-        const dailySchedule = req.body.dailySchedule;
-        // console.log(weekDates.reduce((acc, weekDate) => {
-        //                     return {...acc, [weekDate.toISOString()]: []};
-        //                 }));
-        // console.log(weekDates);
-        // console.log(workArray);
-        // console.log(growthArray);
-        // console.log(lifeArray);
-        // console.log(weekComment);
+        
+        
         try {
-            const existedDoc = await week_model.findOne({weekDates: parseISO(startDate.toISOString())});
+            const existedDoc = await week_model.findOne({weekDates: parseISO(req.body.selectedDateISOString)});
             // res.send(existedDoc);
             if (existedDoc) {  // update exisitng doc
                 existedDoc.weekWorkSchedule = weekWorkSchedule;
                 existedDoc.weekGrowthSchedule = weekGrowthSchedule;
                 existedDoc.weekLifeSchedule = weekLifeSchedule;
                 existedDoc.weekComment = weekComment;
-                existedDoc.weekDates = weekDates;
+                // existedDoc.weekDates = weekDates; // weekdate never changes after creation
                 existedDoc.dailySchedule = dailySchedule;
                 await existedDoc.save();
                 res.send(existedDoc);
             } else { // create new doc
-                // const dailySchedule = weekDates.reduce((acc, weekDate) => {
-                //     return {...acc, [getISODay(weekDate)]: []};
-                // }, {});
+
+                // as fns function works based on server's local time, need to 
+                // 1) shift server time by (server offset - client offset) to same as client time; (client datetime in UCT -> UCT in server datetime -> server datetime =shift> server datetime same as client datetime)
+                // 2) perform fns function on shifted time, including formatting
+                // 3) shift back by same amount to derive correct server time (for Mongo to cast to UCT time)
+
+                // 1) shift server time
+
+                // console.log(`CN offset (in hours): ${CNHourOffset}`);
+                // console.log(`Server offset (in hour) is: ${ServerHourOffset}`);
+                const shiftedTime = addHours(parseISO(req.body.selectedDateISOString), hourShift);
+                // console.log(`shiftedTime: ${shiftedTime}`);
+
+                // 2) perform required functions
+
+                const shiftedStartDate = startOfWeek(shiftedTime, {weekStartsOn: 1});
+                const shiftedEndDate = endOfWeek(shiftedTime, {weekStartsOn: 1});
+                const shiftedWeekDates = eachDayOfInterval({start: shiftedStartDate, end: shiftedEndDate});
+                const shiftedWeekdays = shiftedWeekDates.map(shiftedWeekDate => format(shiftedWeekDate, 'yyMMddE'));
+                
+                // 3) shift back to derive correct server date (so that Mongo can cast corret UCT time)
+                
+                const serverDates = shiftedWeekDates.map(shiftedWeekDate => addHours(shiftedWeekDate, -hourShift));
+
+                // other value for weekSchedule
+
+                const weekWorkSchedule = req.body.weekWorkSchedule;
+                const weekGrowthSchedule = req.body.weekGrowthSchedule;
+                const weekLifeSchedule = req.body.weekLifeSchedule;
+                const weekComment = req.body.weekComment;
+                
+        
+
                 const createdDoc = new week_model({
-                    weekDates,
+                    weekDates: serverDates, // server dates would be cast to UTC time by Mongo
                     weekWorkSchedule,
                     weekGrowthSchedule,
                     weekLifeSchedule,
                     weekComment,
-                    dailySchedule: weekDates.reduce((acc, weekDate) => {
-                        return {...acc, [format(weekDate, 'yyMMddE')]: {
-                            date: weekDate,
+                    dailySchedule: shiftedWeekdays.reduce((acc, shiftedWeekday, index) => {
+                        return {...acc, [shiftedWeekday]: {
+                            date: serverDates[index],
                             dailyWorkArray: {},
                             dailyGrowthArray: {},
                             dailyLifeArray: {},
@@ -79,11 +96,12 @@ router.post('/', async (req, res) => { // date (ISO string) to be in parsed date
 router.get('/', async (req, res) => {
     if (req.session.userID){
         console.log(`received instruction to get doc by dateISO: ${req.query.selectedDateISOString}`);
-        
-        const selectedDate = startOfDay(parseISO(req.query.selectedDateISOString));
-        console.log(`date criteria as ${selectedDate}`);
+        console.log(`received instruction to get doc by UTC: ${parseISO(req.query.selectedDateISOString).toISOString()}`);
+        const shiftedDateStart = startOfDay(addHours(parseISO(req.query.selectedDateISOString), hourShift));
+        const serverDateStart = addHours(shiftedDateStart, -hourShift);
+        console.log(`date criteria in server date as ${serverDateStart}`);
         try {
-            const doc = await week_model.findOne({weekDates: selectedDate});
+            const doc = await week_model.findOne({weekDates: serverDateStart});
             console.log(`doc to be returned: ${doc}`);
             res.send(doc);
         } catch (error) {

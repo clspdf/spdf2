@@ -62,7 +62,7 @@
 
 const {startOfWeek, endOfWeek, eachDayOfInterval, format, parseISO, parse, getISODay, getDay, startOfDay} = require('date-fns');
 const {utcToZonedTime, zonedTimeToUtc} = require('date-fns-tz');
-const now = new Date();
+const cnNow = new Date();
 
 // console.log(`current date is ${now}`);
 // console.log(`date after formatting: ${format(now, 'MMM/do/yyyy')}`);
@@ -149,12 +149,13 @@ const now = new Date();
 // const mapCount = count.map((item, index) => index + 1);
 // console.log(mapCount);
 const tz = 'Asia/Shanghai';
-console.log(`current date in local expression: ${now}`);
-console.log(`current start of date: ${startOfDay(now)}`);
-console.log(`In ISO String: ${startOfDay(now).toISOString()}`);
+console.log(`China now: ${cnNow}`);
 
-console.log(`Week start: ${startOfWeek(startOfDay(now), {weekStartsOn: 1})}`);
-console.log(`In ISO String: ${startOfWeek(now, {weekStartsOn: 1}).toISOString()}`);
-// console.log(`current date in utc expression: ${zonedTimeToUtc(now, tz)}`);
-// console.log(`current date in utc ISO String: ${zonedTimeToUtc(now, tz).toISOString()}`);
+console.log(`China now in UTC String: ${cnNow.toISOString()}`);
+console.log(`China now from UTC Time: ${utcToZonedTime(cnNow.toISOString(), tz)}`);
+console.log(`In UTC String again: ${utcToZonedTime(cnNow.toISOString(), tz).toISOString()}`);
 
+console.log(`local offset to UTC time: ${cnNow.getTimezoneOffset()}`);
+console.log(480/60);
+console.log(startOfDay(cnNow));
+console.log(startOfDay(cnNow).toISOString());
